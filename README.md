@@ -1,150 +1,95 @@
-# 👏 Wake Up
+# 👏 Wake-Up Windows: Clap-Powered App Launcher
 
-**Cross-platform** voice and clap-controlled app launcher! Say a wake word, then use clap patterns to launch apps.
+**Windows-only** voice and clap-controlled app launcher! Say a wake word like "blueberry", then use clap patterns to launch apps. Customized with launches for WhatsApp, Notion, Antigravity IDE, YouTube Music, and Google Calendar in Brave.
 
-✅ **Automatically detects your OS** (macOS, Windows, Linux) and adjusts commands accordingly!
+✅ **Automatically detects Windows** and uses the right commands. 100% offline with Porcupine for fast wake word detection.
 
 ## 🎬 How It Works
 
-1. **Say wake word** (e.g., "jarvis") → Activates system
-2. **Double clap** 👏👏 → Launches your configured apps
-3. **Triple clap** 👏👏👏 (within 30 seconds) → Opens a video/URL
+1. **Say wake word** (e.g., "blueberry") → Activates 5-second window.
+2. **Double clap** 👏👏 → Launches configured apps (e.g., WhatsApp, Notion).
+3. **Triple clap** 👏👏👏 (within 30 seconds after double) → Opens a URL/video (e.g., Instagram or YouTube).
 
 ## ✨ Features
 
-- 🖥️ **Cross-platform**: Works on macOS, Windows, and Linux
-- 🔌 **100% Offline**: Wake word detection runs locally
-- 🎯 **Smart OS Detection**: Automatically uses the right commands for your system
-- 🎤 **Fast & Accurate**: Porcupine wake word engine
-- 🎵 **Customizable**: Configure any apps and actions
+- 🖥️ **Windows-Optimized**: Tailored commands and paths for seamless app launches.
+- 🔌 **100% Offline**: Wake word and clap detection run locally—no internet.
+- 🎯 **Smart Detection**: Auto-OS handling with full path examples for reliability.
+- 🎤 **Fast & Accurate**: Porcupine engine for wake words; amplitude-based clap counting.
+- 🎵 **Customizable**: Easy tweaks for apps, URLs, sensitivity, and wake words.
+- 🔒 **Privacy-First**: No data sent anywhere—your audio stays on-device.
 
 ## 📋 Requirements
 
-- **Python 3.9-3.12** (avoid 3.13 on Windows - dependency issues)
-- Microphone
-- macOS, Windows, or Linux
-- Free Porcupine API key from [console.picovoice.ai](https://console.picovoice.ai/)
+- **Python 3.9-3.12** (download from [python.org](https://www.python.org/downloads/)—avoid 3.13 on Windows due to dependency issues).
+- Built-in microphone (or external USB mic).
+- Free Porcupine API key from [console.picovoice.ai](https://console.picovoice.ai/) (signup takes 1 min, free tier sufficient).
 
 ## 🚀 Quick Start
 
 ### 1. Get API Key
-
-Sign up at [console.picovoice.ai](https://console.picovoice.ai/) and copy your Access Key (free tier available).
+Sign up at [console.picovoice.ai](https://console.picovoice.ai/) and copy your Access Key (long string)—keep it handy.
 
 ### 2. Install
-
-**macOS:**
 ```bash
-# Install portaudio first (required for PyAudio)
-brew install portaudio
-
-git clone https://github.com/tpateeq/wake-up.git
-cd wake-up
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-**Windows:**
-```bash
-git clone https://github.com/tpateeq/wake-up.git
-cd wake-up
+git clone https://github.com/Shio242/wake-up-windows.git
+cd wake-up-windows
 python -m venv venv
 venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements.txt  # Installs pyaudio, numpy, pvporcupine
 ```
 
-**Linux:**
-```bash
-# Install portaudio first (required for PyAudio)
-sudo apt-get install portaudio19-dev  # Ubuntu/Debian
-# OR
-sudo dnf install portaudio-devel      # Fedora
-
-git clone https://github.com/tpateeq/wake-up.git
-cd wake-up
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+If PyAudio fails: Ensure Python 3.11/3.12; try `pip install --upgrade pip wheel` then rerun.
 
 ### 3. Add Your API Key
-
-Open `clap_launcher.py` and add your key at line 32:
-
-```python
-PORCUPINE_ACCESS_KEY = "your-key-here"
+Open `clap_launcher.py` in Notepad or VS Code. At line ~32:
+```bash
+PORCUPINE_ACCESS_KEY = "your-key-here"  # Paste your key from console.picovoice.ai
 ```
+Save—don't commit the real key!
 
 ### 4. Configure Your Apps
+The script uses Windows commands like `subprocess.Popen` for reliable launches. Customize in `launch_all_apps()` (~line 267). Examples (uncomment/edit for your paths—find via shortcut > Properties > Target):
+```bash
+if self.os_type == "Windows":
+subprocess.Popen([r"C:\Users\YOURNAME\AppData\Local\WhatsApp\WhatsApp.exe"]) # for whatsapp desktop
+subprocess.Popen([r"C:\Users\YOURNAME\AppData\Local\Programs\Notion\Notion.exe"]) # for notion desktop
+subprocess.Popen([r"C:\Program Files\Google\Antigravity IDE\antigravity.exe"]) #Antigravity IDE (edit path)
+subprocess.Popen([r"C:\Users\YOURNAME\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe", "https://music.youtube.com/"]) #YouTube Music in Brave (edit path)
+subprocess.Popen([r"C:\Users\YOURNAME\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe", "https://calendar.google.com/"]) #Google Calendar in Brave (edit path)
 
-The script **automatically detects your OS** and uses the appropriate commands! Just customize the app names in the `launch_all_apps()` method (starting at line 267):
-
-**Example configuration:**
-```python
-def launch_all_apps(self):
-    print("\n🚀 DOUBLE CLAP DETECTED! Launching apps...\n")
-    
-    if self.os_type == "Darwin":  # macOS
-        self._launch_app_macos("Visual Studio Code")
-        self._launch_app_macos("Google Chrome", args=["--new-window", "https://claude.ai"])
-        self._launch_app_macos("Discord")
-        
-    elif self.os_type == "Windows":
-        self._launch_app_windows("code")  # VS Code
-        self._launch_app_windows("chrome", args=["https://claude.ai"])
-        self._launch_app_windows("discord")
-        
-    elif self.os_type == "Linux":
-        self._launch_app_linux("code")  # VS Code
-        self._launch_app_linux("google-chrome", args=["https://claude.ai"])
-        self._launch_app_linux("discord")
+#Add more: e.g., Discord
+subprocess.Popen([r"C:\Users\YOURNAME\AppData\Local\Discord\app-1.0.9003\Discord.exe"])
 ```
 
-**Customize for your favorite apps:**
-
-*macOS examples:*
-```python
-self._launch_app_macos("Spotify")
-self._launch_app_macos("Slack")
-self._launch_app_macos("Safari", args=["https://example.com"])
-self._launch_app_macos("Terminal")
-```
-
-*Windows examples:*
-```python
-self._launch_app_windows("spotify")
-self._launch_app_windows("slack")
-self._launch_app_windows("notepad")
-# Full path for apps not in PATH:
-subprocess.Popen([r"C:\Program Files\App\app.exe"])
-```
-
-*Linux examples:*
-```python
-self._launch_app_linux("spotify")
-self._launch_app_linux("slack")
-self._launch_app_linux("firefox", args=["https://example.com"])
-self._launch_app_linux("gnome-terminal")
-```
+For Store apps (e.g., WhatsApp): Use `os.system("start whatsapp:")` instead of Popen.
 
 ### 5. Run
-
 ```bash
-python3 clap_launcher.py  # macOS/Linux
-python clap_launcher.py   # Windows
+python clap_launcher.py --wake blueberry
+```
+Output:
+```bash
+🖥️  Detected OS: Windows
+📋 Available wake words: jarvis, computer, alexa...
+✅ Wake word 'blueberry' loaded successfully!
+🎧 Listening for 'blueberry'...
 ```
 
-Say **"jarvis"** and start clapping! 🎉
+Say "blueberry" and clap—apps launch!
 
-The script will automatically detect your OS:
+**One-Click Batch**: Create `start_wakeup.bat` in the folder:
+```bash
+@echo off
+cd /d "%~dp0"
+venv\Scripts\activate
+python clap_launcher.py --wake blueberry
+pause
 ```
-🖥️  Detected OS: Windows  # or Darwin (macOS), or Linux
-```
+Double-click for instant start.
 
 ## 🎮 Available Wake Words
-
-- `jarvis` (default)
+- `jarvis` (original default)
 - `computer`
 - `alexa`
 - `hey google`
@@ -153,194 +98,110 @@ The script will automatically detect your OS:
 - `terminator`
 - `bumblebee`
 - `porcupine`
-- `blueberry`
+- `blueberry` (your default)
 - `grapefruit`
 - `grasshopper`
 
-**Use a different wake word:**
-```bash
-python3 clap_launcher.py --wake computer
-```
+Use another: `python clap_launcher.py --wake computer`.
 
 ## 🛠️ Customization
 
-### Change the video URL (triple clap action)
-
-Edit the `play_youtube_video()` method around line 333:
-
-```python
-def play_youtube_video(self):
-    youtube_url = "https://www.instagram.com/p/DMZ58Whvfir/"  # Change to any URL!
-    
-    # The script automatically handles opening URLs on all platforms
-```
-
-You can use any URL - YouTube, Instagram, websites, local files, etc!
-
-### Adjust clap sensitivity
-
-If claps aren't being detected or too many false positives:
-
-```python
-# In main() function, around line 416:
-launcher = UnifiedLauncher(
-    wake_word=wake_word, 
-    clap_threshold=1800,  # Lower = more sensitive, Higher = less sensitive
-    debug=debug_mode
-)
-```
-
-**Run with debug mode** to see amplitude levels and find the right threshold:
+### Change Triple Clap URL/Video
+In `play_youtube_video()` (~line 300):
 ```bash
-python3 clap_launcher.py --debug
+youtube_url = "https://www.instagram.com/p/DMZ58Whvfir/"  # Edit to your video/URL
 ```
+Works for YouTube, Instagram, websites, etc. Triple clap opens it in default browser.
+
+### Adjust Clap Sensitivity
+In `__init__` (~line 50):
+```bash
+clap_threshold = 1800  # Lower for softer claps (e.g., 1500); higher for noisy rooms (e.g., 2200)
+```
+Run `--debug` to see amplitudes and tune.
+
+### Add More Apps
+In `launch_all_apps()`: Add lines like:
+```bash
+subprocess.Popen([r"C:\Path\To\Spotify\Spotify.exe"])  # Spotify
+```
+For URLs: `subprocess.Popen([r"C:\Path\To\Chrome\chrome.exe", "https://example.com"])`.
+
+### Debug Mode
+`python clap_launcher.py --debug`—shows amplitudes for tuning.
 
 ## 🐛 Troubleshooting
 
-### Wake word not detected
-
-**Check microphone permissions:**
-- **macOS**: System Preferences → Security & Privacy → Microphone → Enable Terminal
-- **Windows**: Settings → Privacy → Microphone → Enable Python
-- **Linux**: Check microphone permissions for your terminal
-
-**Test your microphone:**
-- Speak clearly at normal volume
-- Make sure you're using the correct microphone (if you have multiple)
-- Try a different wake word: `python3 clap_launcher.py --wake computer`
-
-**Check which microphone is being used:**
-Run this Python snippet to list available audio devices:
-```python
-import pyaudio
-pa = pyaudio.PyAudio()
-for i in range(pa.get_device_count()):
-    info = pa.get_device_info_by_index(i)
-    if info['maxInputChannels'] > 0:
-        print(f"{i}: {info['name']}")
+### Wake Word Not Detected
+- **Mic Permissions**: Settings > Privacy & security > Microphone > Allow desktop apps.
+- **Test Mic**: Run in terminal: Speak loudly—listen for feedback if looped.
+- **Multiple Mics**: List devices:
+```bash
+python -c "import pyaudio; p = pyaudio.PyAudio(); [print(i, p.get_device_info_by_index(i)['name']) for i in range(p.get_device_count()) if p.get_device_info_by_index(i)['maxInputChannels'] > 0]"
 ```
+Edit script if needed (add `input_device_index = 1` in `self.pa.open()`).
+- **Quiet Room**: Speak clearly; try "jarvis" for testing.
 
-### Claps not detected
-
-- **Run debug mode**: `python3 clap_launcher.py --debug`
-- Clap sharply and crisply near the microphone
-- Watch the amplitude output - it should spike above the threshold
-- Adjust `clap_threshold` in code (line 416)
-  - Lower value = more sensitive (might pick up background noise)
-  - Higher value = less sensitive (might miss soft claps)
-- Default threshold is 1800 - adjust based on your debug output
-
-**Example debug output:**
-```
-Amplitude: 2500 (threshold: 1800)  # ✅ Clap detected!
-Amplitude: 1200 (threshold: 1800)  # ❌ Too quiet
+### Claps Not Detected
+- **Debug It**: `--debug` shows amplitudes—claps should spike >1800.
+- **Clap Style**: Sharp, near mic; 0.7s apart for doubles/triples.
+- **Noise**: Lower threshold if false negatives; raise if false positives.
+- **Example Output**:
+```bash
+Amplitude: 2500 (threshold: 1800)  # Clap!
+Amplitude: 1200 (threshold: 1800)  # Too quiet
 ```
 
 ### "No module named 'pvporcupine'"
-
 ```bash
 pip install pvporcupine
 ```
 
-### macOS: "PortAudio not found" or "portaudio.h not found"
+### PyAudio/Dep Errors
+- Reinstall: `pip install --upgrade pip wheel; pip install -r requirements.txt`.
+- Python Version: Switch to 3.11/3.12 if 3.13 fails.
 
-This means portaudio wasn't installed before PyAudio:
+### Apps Not Launching
+- **Paths**: Right-click shortcut > Properties > Target (use full .exe).
+- **Not in PATH**: Always use full path with `subprocess.Popen`.
+- **Store Apps**: `os.system("start whatsapp:")` or "notion:".
+- **Test**: Open Command Prompt, type `start notepad`—if works, good.
 
-```bash
-# Install portaudio
-brew install portaudio
+### API Key Errors
+- "Invalid key": No spaces/extra chars; regenerate at console.picovoice.ai.
+- Device Limit: Free tier caps—new key if exceeded.
 
-# Then reinstall requirements
-pip install -r requirements.txt
-```
-
-### Windows: Python 3.13 installation fails
-
-**Recommended solution:** Use Python 3.11 or 3.12 instead.
-
-Some dependencies (numpy, PyAudio) don't have pre-built wheels for Python 3.13 on Windows yet.
-
-1. Download Python 3.12 from [python.org](https://www.python.org/downloads/)
-2. Reinstall and create new venv:
-   ```bash
-   py -3.12 -m venv venv
-   venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-### Windows: Apps not launching
-
-**Check if apps are installed and in PATH:**
-```bash
-where appname  # Check if app is in PATH
-```
-
-**For apps not in PATH:**
-Use full path in the script:
-```python
-subprocess.Popen([r"C:\Program Files\YourApp\app.exe"])
-```
-
-**Common app commands:**
-- VS Code: `code`
-- Chrome: `chrome`
-- Discord: `discord`
-- Spotify: `spotify`
-- Slack: `slack`
-
-### API Key errors
-
-**"Invalid access key" or initialization failed:**
-- Make sure you copied the key correctly (no extra spaces)
-- Verify the key at [console.picovoice.ai](https://console.picovoice.ai/)
-- Check if you're using a v3 key with v4 library (or vice versa)
-- Free tier keys have device limits - you may need a new key if using on multiple devices
-
-### Linux: PyAudio installation fails
-
-```bash
-# Ubuntu/Debian
-sudo apt-get install portaudio19-dev python3-dev
-
-# Fedora
-sudo dnf install portaudio-devel python3-devel
-
-# Then reinstall
-pip install -r requirements.txt
-```
-
-## 📝 How It Works Internally
-
-1. **OS Detection**: Script detects your platform using `platform.system()`
-2. **Wake Word**: Porcupine continuously listens for your wake word (offline)
-3. **Activation Window**: 5 seconds to perform double clap
-4. **App Launch**: OS-appropriate commands launch your apps
-5. **Triple Clap Window**: 30 seconds to perform triple clap for secondary action
+## 📝 Internal Workings
+1. **OS Detection**: `platform.system()` picks "Windows".
+2. **Wake Word**: Porcupine processes audio frames offline.
+3. **Activation**: 5s window post-wake; claps counted by timing/amplitude.
+4. **Launches**: `subprocess.Popen` for apps/URLs with 0.5s delays.
+5. **Cleanup**: Graceful exit on Ctrl+C.
 
 ## 🔒 Privacy
-
-- Wake word detection runs **100% offline** on your machine
-- No audio data is sent to any server
-- Porcupine API key only validates the library, doesn't transmit audio
-- Completely private and secure
+- 100% local: Audio processed on-device; key only validates library.
+- No transmission: Porcupine/PyAudio stay offline.
 
 ## 🤝 Contributing
-
-Contributions welcome! Feel free to:
-- Add support for more platforms
-- Improve clap detection algorithm
-- Add more customization options
-- Fix bugs or improve documentation
+Fork, tweak apps/wake words, improve clap detection algorithm or fix bugs—PRs welcome! Issues for suggestions.
 
 ## 📄 License
+MIT License—use/modify freely.
 
-MIT License - feel free to use and modify!
-
----
-## Credits
+## 🤝 Credits
 Inspired by @TPAteeq's wake-up project—thanks for the foundation! https://github.com/TPAteeq/wake-up
+---
 
-**⭐ Star this repo if you find it useful!**
+**⭐ Star if useful!** Made with 💙 for Windows productivity. *Updated: February 12, 2026*
 
 
-**Made with 💙 for productivity enthusiasts**
+
+
+
+
+
+
+
+
+
+
