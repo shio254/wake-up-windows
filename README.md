@@ -337,7 +337,10 @@ Contributions welcome! Feel free to:
 MIT License - feel free to use and modify!
 
 ---
+## Credits
+Inspired by @TPAteeq's wake-up project—thanks for the foundation! https://github.com/TPAteeq/wake-up
 
 **⭐ Star this repo if you find it useful!**
+
 
 **Made with 💙 for productivity enthusiasts**
